@@ -165,6 +165,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distanceThreshold: 0.5
   spriteRenderer: {fileID: 4365236717901343181}
+  infectedColor: {r: 1, g: 0.27, b: 0, a: 1}
+  curedColor: {r: 0, g: 0.589, b: 1, a: 1}
   isInfected: 0
   isRecovered: 0
 --- !u!54 &6526125488584717842

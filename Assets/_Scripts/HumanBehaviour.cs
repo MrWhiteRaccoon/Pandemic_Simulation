@@ -10,6 +10,10 @@ public class HumanBehaviour : MonoBehaviour
     public Human data;
     public SpriteRenderer spriteRenderer;
 
+    [Header("Colors")]
+    public Color infectedColor;
+    public Color curedColor;
+
     [HideInInspector]
     public bool isInfected = false;
     [HideInInspector]
@@ -65,7 +69,7 @@ public class HumanBehaviour : MonoBehaviour
     {
         isInfected = true;
         manager.InfectHuman(data);
-        spriteRenderer.color = Color.red;
+        spriteRenderer.color = infectedColor;
     }
 
     public void Cure()
@@ -73,7 +77,7 @@ public class HumanBehaviour : MonoBehaviour
         isInfected = false;
         isRecovered = true;
         manager.RecoverHuman(data);
-        spriteRenderer.color = Color.blue;
+        spriteRenderer.color = curedColor;
     }
 
     private void OnTriggerEnter(Collider other)
