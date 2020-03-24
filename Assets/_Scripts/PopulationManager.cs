@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PopulationManager : MonoBehaviour
 {
+    [Header("SimulationSettings")]
     public int totalPopulation;
 
     public GameObject humanObject;
@@ -11,8 +13,14 @@ public class PopulationManager : MonoBehaviour
     public Vector2 mapLimits;
     public GraphTest graph;
 
+    [Header("UI")]
+    public Text healthyText;
+    public Text infectedText;
+    public Text curedText;
+
     public List<Human> everyHuman = new List<Human>();
     public List<Human> infectedHuman = new List<Human>();
+    public List<Human> curedHuman = new List<Human>();
 
     List<float> infectionData=new List<float>();
     
@@ -22,8 +30,7 @@ public class PopulationManager : MonoBehaviour
     private void Start()
     {
         timeCount = refreshTime;
-        everyHuman = new List<Human>();
-        infectedHuman = new List<Human>();
+
         GeneratePopulation();
         FindObjectsOfType<HumanBehaviour>()[Random.Range(0, FindObjectsOfType<HumanBehaviour>().Length-1)].Infect();
     }
@@ -47,11 +54,16 @@ public class PopulationManager : MonoBehaviour
             infectionData.Add(infectedHuman.Count);
             graph.RefreshData(infectionData.ToArray(), new Vector2(0, totalPopulation));
         }
-
-        Debug.Log("Infected: " + infectedHuman.Count);
+        UpdateUI();
+    }
+    
+    void UpdateUI()
+    {
+        healthyText.text = "Healthy: " + (totalPopulation - infectedHuman.Count - curedHuman.Count);
+        infectedText.text = "Infected: " + infectedHuman.Count;
+        curedText.text = "Cured: " + curedHuman.Count;
     }
 
-    //Fix this!! the for loop should go from 0 to total population
     void GeneratePopulation()
     {
         for (int i = 0; i < totalPopulation; i++)
@@ -77,5 +89,6 @@ public class PopulationManager : MonoBehaviour
     public void RecoverHuman(Human human)
     {
         infectedHuman.Remove(human);
+        curedHuman.Add(human);
     }
 }
