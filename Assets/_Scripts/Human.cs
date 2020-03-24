@@ -24,4 +24,8 @@ public class Human
     public Occupation occupation;
 
     public int age;
+
+    public bool isInfected;
+    public bool isCured;
+    public bool isStatic;
 }

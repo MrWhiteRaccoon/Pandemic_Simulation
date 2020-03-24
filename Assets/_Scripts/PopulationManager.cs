@@ -5,24 +5,41 @@ using UnityEngine.UI;
 
 public class PopulationManager : MonoBehaviour
 {
+    [Header("Quarrantine Settings")]
+    public bool socialDistancing;
+    [Range(0, 100)] public float socialDistancingPercentage;
+
     [Header("SimulationSettings")]
     public int totalPopulation;
+    public float secondsPerDay;
 
-    public GameObject humanObject;
-
-    public Vector2 mapLimits;
-    public GraphTest graph;
+    [Header("Colors")]
+    public Color healthyColor;
+    public Color infectedColor;
+    public Color curedColor;
+    public Color deathColor;
+    public Color backgroundColor;
 
     [Header("UI")]
     public Text healthyText;
     public Text infectedText;
     public Text curedText;
+    public Text populationText;
+    public Text densityText;
+    public Text dayText;
+
+    [Header("Refs")]
+    public GameObject humanObject;
+    public Vector2 mapLimits;
+    public GraphTest graph;
 
     public List<Human> everyHuman = new List<Human>();
     public List<Human> infectedHuman = new List<Human>();
     public List<Human> curedHuman = new List<Human>();
 
     List<float> infectionData=new List<float>();
+    List<float> curedData = new List<float>();
+    List<float> healthyData = new List<float>();
     
     public float refreshTime;
     private float timeCount;
@@ -31,8 +48,18 @@ public class PopulationManager : MonoBehaviour
     {
         timeCount = refreshTime;
 
-        GeneratePopulation();
+        //GeneratePopulationGrid();
+        GeneratePopulationRandom();
+
         FindObjectsOfType<HumanBehaviour>()[Random.Range(0, FindObjectsOfType<HumanBehaviour>().Length-1)].Infect();
+
+        UISetup();
+
+        graph.healthyColor = healthyColor;
+        graph.infectedColor = infectedColor;
+        graph.curedColor = curedColor;
+        graph.deathColor = deathColor;
+        graph.backgroundColor = backgroundColor;
     }
 
     private void Update()
@@ -52,19 +79,37 @@ public class PopulationManager : MonoBehaviour
             timeCount = refreshTime;
 
             infectionData.Add(infectedHuman.Count);
-            graph.RefreshData(infectionData.ToArray(), new Vector2(0, totalPopulation));
+            curedData.Add(curedHuman.Count);
+            healthyData.Add(totalPopulation - infectedHuman.Count - curedHuman.Count);
+
+            graph.RefreshData(infectionData.ToArray(),curedData.ToArray(),healthyData.ToArray(), new Vector2(0, totalPopulation+100));
         }
         UpdateUI();
-    }
-    
-    void UpdateUI()
-    {
-        healthyText.text = "Healthy: " + (totalPopulation - infectedHuman.Count - curedHuman.Count);
-        infectedText.text = "Infected: " + infectedHuman.Count;
-        curedText.text = "Cured: " + curedHuman.Count;
+        if (infectedHuman.Count == 0)
+        {
+            Debug.Break();
+        }
     }
 
-    void GeneratePopulation()
+    void UISetup()
+    {
+        healthyText.color = healthyColor;
+        infectedText.color = infectedColor;
+        curedText.color = curedColor;
+        populationText.text = "Total population: " + totalPopulation;
+        densityText.text = "Population density: " + (totalPopulation) / (mapLimits.x * mapLimits.y) + " (p/Km^2)";
+    }
+
+    void UpdateUI()
+    {
+        healthyText.text = "Healthy: " + (totalPopulation - infectedHuman.Count - curedHuman.Count) + "  " + (float)(totalPopulation - infectedHuman.Count - curedHuman.Count) * 100 / totalPopulation + "%";
+        infectedText.text = "Infected: " + infectedHuman.Count + "  " + (float)infectedHuman.Count * 100 / totalPopulation + "%";
+        curedText.text = "Cured: " + curedHuman.Count + "  " + (float)curedHuman.Count * 100 / totalPopulation + "%";
+
+        dayText.text = "Day: " + (int)(Time.time / secondsPerDay);
+    }
+
+    void GeneratePopulationGrid()
     {
         for (int i = 0; i < totalPopulation; i++)
         {
@@ -78,6 +123,25 @@ public class PopulationManager : MonoBehaviour
             Human humanData=new Human();
             human.data = humanData;
             everyHuman.Add(humanData);
+        }
+    }
+
+    void GeneratePopulationRandom()
+    {
+        for (int i = 0; i < totalPopulation; i++)
+        {
+            float coordX = Random.Range(-mapLimits.x + 1, mapLimits.x - 1);
+            float coordY = Random.Range(-mapLimits.y + 1, mapLimits.y - 1);
+
+
+            HumanBehaviour human = Instantiate(humanObject, new Vector3(coordX, 0, coordY), Quaternion.identity, this.transform).GetComponent<HumanBehaviour>();
+            Human humanData = new Human();
+            human.data = humanData;
+            everyHuman.Add(humanData);
+            if (Random.Range(0, 100) < socialDistancingPercentage)
+            {
+                humanData.isStatic = true;
+            }
         }
     }
 

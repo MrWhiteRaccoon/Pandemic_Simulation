@@ -126,10 +126,10 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.1
-  m_Speed: 3.5
-  m_Acceleration: 8
+  m_Speed: 0
+  m_Acceleration: Infinity
   avoidancePriority: 50
-  m_AngularSpeed: 120
+  m_AngularSpeed: Infinity
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0
@@ -163,12 +163,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2247aa99bc702947bca37f128d3290a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  recoveryTimeAv: 28
+  recoveryTimeDisp: 2
   distanceThreshold: 0.5
+  moveability: 4
+  speed: 4
   spriteRenderer: {fileID: 4365236717901343181}
-  infectedColor: {r: 1, g: 0.27, b: 0, a: 1}
-  curedColor: {r: 0, g: 0.589, b: 1, a: 1}
-  isInfected: 0
-  isRecovered: 0
 --- !u!54 &6526125488584717842
 Rigidbody:
   m_ObjectHideFlags: 0

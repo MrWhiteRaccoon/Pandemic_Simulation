@@ -16,6 +16,12 @@ public class GraphTest : MonoBehaviour
     Texture2D texture;
     Rect rect;
 
+    public Color healthyColor;
+    public Color infectedColor;
+    public Color curedColor;
+    public Color deathColor;
+    public Color backgroundColor;
+
     private void Awake()
     {
     }
@@ -25,7 +31,7 @@ public class GraphTest : MonoBehaviour
         rect = new Rect(0, 0, spriteSize.x, spriteSize.y);
     }
 
-    void GenerateGraph(float[] dataY)
+    void GenerateGraph(float[] infectedData, float[] curedData, float[] healthyData)
     {
         Color[] colors = new Color[(int)(spriteSize.x * spriteSize.y)];
         for (int i = 0; i < colors.Length; i++)
@@ -36,13 +42,21 @@ public class GraphTest : MonoBehaviour
             float x = (xLimits.y - xLimits.x) * ((float)coordX / (float)spriteSize.x) + xLimits.x;
             float y = (yLimits.y - yLimits.x) * ((float)coordY / (float)spriteSize.y) + yLimits.x;
 
-            if (y < dataY[(int)x])
+            if (y < infectedData[(int)x])
             {
-                colors[i] = Color.red;
+                colors[i] = infectedColor;
+            }
+            else if (y < curedData[(int)x])
+            {
+                colors[i] = curedColor;
+            }
+            else if (y < curedData[(int)x] + healthyData[(int)x])
+            {
+                colors[i] = healthyColor;
             }
             else
             {
-                colors[i] = Color.white;
+                colors[i] = backgroundColor;
             }
                
         }
@@ -55,14 +69,14 @@ public class GraphTest : MonoBehaviour
         image.sprite = sprite;
     }
 
-    public void RefreshData(float[] dataY,Vector2 yLimits)
+    public void RefreshData(float[] infectedData, float[] curedData,float[] healthyData, Vector2 yLimits)
     {
         this.yLimits = yLimits;
 
         xLimits.x = 0;
-        xLimits.y = dataY.Length-1;
+        xLimits.y = infectedData.Length-1;
 
-        GenerateGraph(dataY);
+        GenerateGraph(infectedData,curedData,healthyData);
     }
 
     float TestFunction(float x)

@@ -6,50 +6,54 @@ using UnityEngine.AI;
 
 public class HumanBehaviour : MonoBehaviour
 {
+    [Header("Disease Settings")]
+    public float recoveryTimeAv;
+    public float recoveryTimeDisp;
+
+    [Header("Behaviour Settings")]
     public float distanceThreshold;
+    public float moveability;
+    public float speed;
+
     public Human data;
     public SpriteRenderer spriteRenderer;
 
-    [Header("Colors")]
-    public Color infectedColor;
-    public Color curedColor;
-
-    [HideInInspector]
-    public bool isInfected = false;
-    [HideInInspector]
-    public bool isRecovered = false;
-
-    float infectionTime;
     NavMeshAgent agent;
     PopulationManager manager;
+    float recoveryTime;
 
     // Start is called before the first frame update
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         manager = FindObjectOfType<PopulationManager>();
-        infectionTime = Random.Range(30f, 40f);
+        recoveryTime = Random.Range(recoveryTimeAv-recoveryTimeDisp, recoveryTimeAv+recoveryTimeDisp);
+        spriteRenderer.color = manager.healthyColor;
+        agent.speed = speed;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isInfected)
+        if (data.isInfected)
         {
-            infectionTime -= Time.deltaTime;
-            if (infectionTime <= 0)
+            recoveryTime -= Time.deltaTime;
+            if (recoveryTime <= 0)
             {
                 Cure();
             }
         }
-
+        if (data.isStatic)
+        {
+            return;
+        }
         if (agent.remainingDistance > distanceThreshold)
         {
             return;
         }
         else
         {
-            SetRandomTarget(5f);
+            SetRandomTarget(moveability);
         }
     }
 
@@ -67,27 +71,27 @@ public class HumanBehaviour : MonoBehaviour
 
     public void Infect()
     {
-        isInfected = true;
+        data.isInfected = true;
         manager.InfectHuman(data);
-        spriteRenderer.color = infectedColor;
+        spriteRenderer.color = manager.infectedColor;
     }
 
     public void Cure()
     {
-        isInfected = false;
-        isRecovered = true;
+        data.isInfected = false;
+        data.isCured = true;
         manager.RecoverHuman(data);
-        spriteRenderer.color = curedColor;
+        spriteRenderer.color = manager.curedColor;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (isRecovered || isInfected)
+        if (data.isCured || data.isInfected)
         {
             return;
         }
         HumanBehaviour otherHuman = other.GetComponent<HumanBehaviour>();
-        if (otherHuman.isInfected)
+        if (otherHuman.data.isInfected)
         {
             Infect();
         }
