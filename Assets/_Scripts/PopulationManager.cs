@@ -22,9 +22,10 @@ public class PopulationManager : MonoBehaviour
     private void Start()
     {
         timeCount = refreshTime;
-        GeneratePopulation();
         everyHuman = new List<Human>();
         infectedHuman = new List<Human>();
+        GeneratePopulation();
+        FindObjectsOfType<HumanBehaviour>()[Random.Range(0, FindObjectsOfType<HumanBehaviour>().Length-1)].Infect();
     }
 
     private void Update()
@@ -46,6 +47,8 @@ public class PopulationManager : MonoBehaviour
             infectionData.Add(infectedHuman.Count);
             graph.RefreshData(infectionData.ToArray(), new Vector2(0, totalPopulation));
         }
+
+        Debug.Log("Infected: " + infectedHuman.Count);
     }
 
     //Fix this!! the for loop should go from 0 to total population
@@ -69,5 +72,10 @@ public class PopulationManager : MonoBehaviour
     public void InfectHuman(Human human)
     {
         infectedHuman.Add(human);
+    }
+
+    public void RecoverHuman(Human human)
+    {
+        infectedHuman.Remove(human);
     }
 }

@@ -12,28 +12,33 @@ public class HumanBehaviour : MonoBehaviour
 
     [HideInInspector]
     public bool isInfected = false;
+    [HideInInspector]
+    public bool isRecovered = false;
 
-    float temporalInfection;
+    float infectionTime;
     NavMeshAgent agent;
     PopulationManager manager;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         manager = FindObjectOfType<PopulationManager>();
-        temporalInfection = Random.Range(5f, 30f);
+        infectionTime = Random.Range(30f, 40f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Time.time >= temporalInfection && !isInfected)
+        if (isInfected)
         {
-            isInfected = true;
-            manager.InfectHuman(data);
-            spriteRenderer.color = Color.red;
+            infectionTime -= Time.deltaTime;
+            if (infectionTime <= 0)
+            {
+                Cure();
+            }
         }
+
         if (agent.remainingDistance > distanceThreshold)
         {
             return;
@@ -54,5 +59,34 @@ public class HumanBehaviour : MonoBehaviour
         target.z = Mathf.Clamp(target.z, -manager.mapLimits.y, manager.mapLimits.y-1);
 
         agent.SetDestination(target);
+    }
+
+    public void Infect()
+    {
+        isInfected = true;
+        manager.InfectHuman(data);
+        spriteRenderer.color = Color.red;
+    }
+
+    public void Cure()
+    {
+        isInfected = false;
+        isRecovered = true;
+        manager.RecoverHuman(data);
+        spriteRenderer.color = Color.blue;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (isRecovered || isInfected)
+        {
+            return;
+        }
+        HumanBehaviour otherHuman = other.GetComponent<HumanBehaviour>();
+        if (otherHuman.isInfected)
+        {
+            Infect();
+        }
+        
     }
 }
